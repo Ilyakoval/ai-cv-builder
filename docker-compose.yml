@@ -1,8 +1,10 @@
 name: ai-cv-builder
 
+# api, worker and migrate run the same image. Each service declares the same
+# build (BuildKit dedupes it via cache) instead of sharing one image tag:
+# parallel builds exporting one tag collide ("image ... already exists").
 x-api-image: &api-image
   build: { context: ., target: api }
-  image: ai-cv-builder-api:local
 
 x-api-env: &api-env
   NODE_ENV: production
@@ -78,7 +80,6 @@ services:
 
   web:
     build: { context: ., target: web }
-    image: ai-cv-builder-web:local
     environment:
       API_URL: http://api:3001
     # Host port is configurable: 3000 is often taken by other local dev servers.
