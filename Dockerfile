@@ -33,10 +33,14 @@ COPY --from=build /app/apps/api/dist apps/api/dist
 # its behaviour differs between npm versions/platforms. Link it explicitly.
 RUN mkdir -p node_modules/@cvb \
  && ln -sfn ../../packages/shared node_modules/@cvb/shared
+# COPY keeps the build context's file modes. A checkout with a restrictive
+# umask (e.g. unpacked from an archive) would be unreadable for USER node.
+RUN chmod -R a+rX package.json package-lock.json packages apps/api/dist
 WORKDIR /app/apps/api
-# Fail the image build, not the container start, if the runtime graph is broken.
-RUN node -e "require('@cvb/shared'); require('@node-rs/argon2'); require('./dist/app.module'); require('./dist/worker.module')"
 USER node
+# Fail the image build, not the container start, if the runtime graph is broken.
+# Runs as the runtime user so permission problems surface here too.
+RUN node -e "require('@cvb/shared'); require('@node-rs/argon2'); require('./dist/app.module'); require('./dist/worker.module')"
 EXPOSE 3001
 CMD ["node", "dist/main.js"]
 
@@ -47,6 +51,8 @@ WORKDIR /app
 COPY --from=build /app/apps/web/.next/standalone ./
 COPY --from=build /app/apps/web/.next/static apps/web/.next/static
 COPY --from=build /app/apps/web/public apps/web/public
+# Same umask guard as the api stage: static assets must be readable for USER node.
+RUN chmod -R a+rX /app
 USER node
 EXPOSE 3000
 CMD ["node", "apps/web/server.js"]
