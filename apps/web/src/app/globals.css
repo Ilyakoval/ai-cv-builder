@@ -1,15 +1,75 @@
 @import "tailwindcss";
 
-@theme {
-  --color-ink: #17202b;
-  --color-muted: #5b6573;
-  --color-line: #e3e6eb;
-  --color-surface: #ffffff;
-  --color-canvas: #f5f6f8;
-  --color-brand: #1f3a5f;
-  --color-brand-strong: #152a45;
-  --color-accent: #2f6fdf;
+/* Theme switching: the `dark` class on <html> is set before hydration (see
+   layout.tsx) from localStorage or the OS preference, so there is no flash. */
+@custom-variant dark (&:where(.dark, .dark *));
+
+/* `inline` makes utilities reference the raw variables at use-site, so the
+   palette can flip at runtime when `.dark` changes the variables below. */
+@theme inline {
+  --color-ink: var(--ink);
+  --color-muted: var(--muted);
+  --color-line: var(--line);
+  --color-surface: var(--surface);
+  --color-raised: var(--raised);
+  --color-canvas: var(--canvas);
+  --color-brand: var(--brand);
+  --color-brand-strong: var(--brand-strong);
+  --color-on-brand: var(--on-brand);
+  --color-accent: var(--accent);
+  --color-success: var(--success);
+  --color-success-soft: var(--success-soft);
+  --color-info: var(--info);
+  --color-info-soft: var(--info-soft);
+  --color-warn: var(--warn);
+  --color-warn-soft: var(--warn-soft);
+  --color-danger: var(--danger);
+  --color-danger-soft: var(--danger-soft);
   --font-sans: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+}
+
+:root {
+  color-scheme: light;
+  --ink: #16202b;
+  --muted: #5b6573;
+  --line: #e4e7ec;
+  --surface: #ffffff;
+  --raised: #fbfcfd;
+  --canvas: #f3f5f8;
+  --brand: #1f3a5f;
+  --brand-strong: #152a45;
+  --on-brand: #ffffff;
+  --accent: #2f6fdf;
+  --success: #047857;
+  --success-soft: #ecfdf5;
+  --info: #1d4ed8;
+  --info-soft: #eff6ff;
+  --warn: #b45309;
+  --warn-soft: #fffbeb;
+  --danger: #b91c1c;
+  --danger-soft: #fef2f2;
+}
+
+.dark {
+  color-scheme: dark;
+  --ink: #e6ebf2;
+  --muted: #98a4b3;
+  --line: #2a3340;
+  --surface: #161d27;
+  --raised: #1b242f;
+  --canvas: #0d1218;
+  --brand: #7ca5db;
+  --brand-strong: #9cbce6;
+  --on-brand: #0d1218;
+  --accent: #6ea0ff;
+  --success: #34d399;
+  --success-soft: #11291f;
+  --info: #7ab3ff;
+  --info-soft: #14243a;
+  --warn: #fbbf24;
+  --warn-soft: #2b2311;
+  --danger: #f87171;
+  --danger-soft: #341418;
 }
 
 html {
@@ -17,8 +77,9 @@ html {
 }
 
 body {
-  background: var(--color-canvas);
-  color: var(--color-ink);
+  background: var(--canvas);
+  color: var(--ink);
+  transition: background-color 0.2s ease, color 0.2s ease;
 }
 
 /* iOS zooms into inputs smaller than 16px; keep form controls at 16px on phones. */

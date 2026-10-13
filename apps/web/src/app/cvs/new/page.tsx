@@ -91,7 +91,7 @@ export default function NewCvPage() {
                   type="file"
                   accept="application/pdf,.pdf"
                   onChange={(e) => setFile(e.target.files?.[0] ?? null)}
-                  className="block w-full rounded-lg border border-dashed border-line bg-canvas p-4 text-sm file:mr-3 file:rounded-md file:border-0 file:bg-brand file:px-3 file:py-1.5 file:text-white"
+                  className="block w-full rounded-lg border border-dashed border-line bg-canvas p-4 text-sm file:mr-3 file:rounded-md file:border-0 file:bg-brand file:px-3 file:py-1.5 file:text-on-brand"
                 />
               </Field>
             ) : (

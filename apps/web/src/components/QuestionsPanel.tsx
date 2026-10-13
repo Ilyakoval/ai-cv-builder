@@ -110,10 +110,10 @@ function QuestionCard({
   }
 
   return (
-    <article className="rounded-lg border border-amber-200 bg-surface p-3 shadow-sm">
+    <article className="rounded-xl border border-warn/30 bg-surface p-3 shadow-sm">
       <a
         href={q.itemId ? `#item-${q.itemId}` : `#section-${q.section}`}
-        className="text-xs font-medium uppercase tracking-wide text-amber-700 hover:underline"
+        className="text-xs font-medium uppercase tracking-wide text-warn hover:underline"
       >
         {label}
       </a>

@@ -31,7 +31,7 @@ export function GenerationProgress({ job }: { job: JobDto | undefined }) {
             <span
               className={cx(
                 'flex h-6 w-6 shrink-0 items-center justify-center rounded-full border text-xs',
-                i < current && 'border-emerald-500 bg-emerald-500 text-white',
+                i < current && 'border-success bg-success text-surface',
                 i === current && 'border-brand text-brand',
                 i > current && 'border-line text-muted',
               )}
@@ -42,7 +42,7 @@ export function GenerationProgress({ job }: { job: JobDto | undefined }) {
           </li>
         ))}
       </ol>
-      {job?.error && <p className="mt-4 text-sm text-amber-700">{job.error}</p>}
+      {job?.error && <p className="mt-4 text-sm text-warn">{job.error}</p>}
       {elapsed > 0 && <p className="mt-4 text-xs text-muted">Elapsed: {elapsed}s</p>}
     </Card>
   );

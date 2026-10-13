@@ -51,16 +51,16 @@ export default function CvListPage() {
             <li key={cv.id}>
               <Link
                 href={`/cvs/${cv.id}`}
-                className="block h-full rounded-xl border border-line bg-surface p-4 shadow-sm transition hover:border-accent/40 hover:shadow"
+                className="block h-full rounded-2xl border border-line bg-surface p-4 shadow-sm transition hover:-translate-y-0.5 hover:border-accent/40 hover:shadow-md"
               >
                 <div className="flex items-start justify-between gap-2">
                   <h2 className="font-medium leading-snug">{cv.title}</h2>
                   <span
                     className={cx(
                       'shrink-0 rounded-full px-2 py-0.5 text-xs font-medium',
-                      cv.status === 'ready' && 'bg-emerald-50 text-emerald-700',
-                      cv.status === 'generating' && 'bg-blue-50 text-blue-700',
-                      cv.status === 'failed' && 'bg-red-50 text-red-700',
+                      cv.status === 'ready' && 'bg-success-soft text-success',
+                      cv.status === 'generating' && 'bg-info-soft text-info',
+                      cv.status === 'failed' && 'bg-danger-soft text-danger',
                     )}
                   >
                     {STATUS_LABEL[cv.status]}
@@ -69,7 +69,7 @@ export default function CvListPage() {
                 <p className="mt-1 text-sm text-muted">Target: {cv.targetRole}</p>
                 <div className="mt-3 flex items-center justify-between text-xs text-muted">
                   <span>Updated {relativeTime(cv.updatedAt)}</span>
-                  {cv.openQuestions > 0 && <span className="text-amber-700">{cv.openQuestions} question{cv.openQuestions > 1 ? 's' : ''}</span>}
+                  {cv.openQuestions > 0 && <span className="text-warn">{cv.openQuestions} question{cv.openQuestions > 1 ? 's' : ''}</span>}
                 </div>
               </Link>
             </li>

@@ -3,6 +3,7 @@
 import { useQuery } from '@tanstack/react-query';
 import Link from 'next/link';
 import { api } from '@/lib/api';
+import { ThemeToggle } from './ThemeToggle';
 import { Button } from './ui';
 
 export function AppHeader() {
@@ -21,6 +22,7 @@ export function AppHeader() {
         </Link>
         <div className="flex min-w-0 items-center gap-2">
           {me.data && <span className="hidden truncate text-sm text-muted sm:inline">{me.data.email}</span>}
+          <ThemeToggle />
           <Button variant="ghost" onClick={logout}>
             Sign out
           </Button>

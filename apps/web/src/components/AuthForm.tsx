@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useState, type FormEvent } from 'react';
 import { api, ApiError } from '@/lib/api';
+import { ThemeToggle } from './ThemeToggle';
 import { Alert, Button, Card, Field, Input } from './ui';
 
 export function AuthForm({ mode }: { mode: 'login' | 'signup' }) {
@@ -41,6 +42,10 @@ export function AuthForm({ mode }: { mode: 'login' | 'signup' }) {
   const isLogin = mode === 'login';
   return (
     <main className="mx-auto flex min-h-dvh max-w-md flex-col justify-center px-4 py-10">
+      <div aria-hidden className="pointer-events-none fixed inset-x-0 top-0 -z-10 h-80 bg-gradient-to-b from-accent/10 to-transparent" />
+      <div className="fixed right-4 top-4">
+        <ThemeToggle />
+      </div>
       <div className="mb-6 text-center">
         <p className="text-sm font-semibold tracking-wide text-brand">AI CV BUILDER</p>
         <h1 className="mt-2 text-2xl font-semibold">{isLogin ? 'Welcome back' : 'Create your account'}</h1>

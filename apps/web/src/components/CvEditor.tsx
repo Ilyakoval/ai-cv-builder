@@ -33,8 +33,8 @@ export function SectionCard({
     <section
       id={id}
       className={cx(
-        'scroll-mt-20 rounded-xl border bg-surface p-4 shadow-sm transition sm:p-6',
-        highlight ? 'border-amber-300 ring-2 ring-amber-100' : 'border-line',
+        'scroll-mt-20 rounded-2xl border bg-surface p-4 shadow-sm transition sm:p-6',
+        highlight ? 'border-warn/40 ring-2 ring-warn/15' : 'border-line',
       )}
     >
       <div className="mb-4 flex items-center justify-between gap-2">
@@ -175,7 +175,7 @@ export function CvEditor({
             <article
               key={e.id}
               id={`item-${e.id}`}
-              className={cx('scroll-mt-20 rounded-lg border p-3 sm:p-4', highlight('experience', e.id) ? 'border-amber-300 bg-amber-50/40' : 'border-line')}
+              className={cx('scroll-mt-20 rounded-lg border p-3 sm:p-4', highlight('experience', e.id) ? 'border-warn/40 bg-warn-soft/50' : 'border-line')}
             >
               <div className="mb-3 flex items-center justify-between gap-2">
                 <span className="truncate text-sm font-medium">{[e.title, e.company].filter(Boolean).join(' · ') || `Role ${i + 1}`}</span>
@@ -238,7 +238,7 @@ export function CvEditor({
             <article
               key={e.id}
               id={`item-${e.id}`}
-              className={cx('scroll-mt-20 rounded-lg border p-3 sm:p-4', highlight('education', e.id) ? 'border-amber-300 bg-amber-50/40' : 'border-line')}
+              className={cx('scroll-mt-20 rounded-lg border p-3 sm:p-4', highlight('education', e.id) ? 'border-warn/40 bg-warn-soft/50' : 'border-line')}
             >
               <div className="mb-3 flex items-center justify-between gap-2">
                 <span className="truncate text-sm font-medium">{e.institution || `Education ${i + 1}`}</span>

@@ -20,12 +20,12 @@ export function Button({
       {...props}
       disabled={disabled || loading}
       className={cx(
-        'inline-flex min-h-10 items-center justify-center gap-2 rounded-lg px-4 py-2 text-sm font-medium transition',
+        'inline-flex min-h-10 items-center justify-center gap-2 rounded-lg px-4 py-2 text-sm font-medium transition active:scale-[0.98]',
         'focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent disabled:cursor-not-allowed disabled:opacity-60',
-        variant === 'primary' && 'bg-brand text-white hover:bg-brand-strong',
+        variant === 'primary' && 'bg-brand text-on-brand shadow-sm hover:bg-brand-strong',
         variant === 'secondary' && 'border border-line bg-surface text-ink hover:bg-canvas',
         variant === 'ghost' && 'text-muted hover:bg-canvas hover:text-ink',
-        variant === 'danger' && 'text-red-700 hover:bg-red-50',
+        variant === 'danger' && 'text-danger hover:bg-danger-soft',
         className,
       )}
     >
@@ -67,7 +67,7 @@ export function Field({ label, hint, error, children, className }: { label: stri
       <span className="mb-1 block text-xs font-medium uppercase tracking-wide text-muted">{label}</span>
       {children}
       {hint && !error && <span className="mt-1 block text-xs text-muted">{hint}</span>}
-      {error && <span className="mt-1 block text-xs text-red-700">{error}</span>}
+      {error && <span className="mt-1 block text-xs text-danger">{error}</span>}
     </label>
   );
 }
@@ -78,9 +78,9 @@ export function Alert({ tone = 'error', children, action }: { tone?: 'error' | '
       role={tone === 'error' ? 'alert' : 'status'}
       className={cx(
         'flex flex-col gap-2 rounded-lg border px-4 py-3 text-sm sm:flex-row sm:items-center sm:justify-between',
-        tone === 'error' && 'border-red-200 bg-red-50 text-red-800',
-        tone === 'info' && 'border-blue-200 bg-blue-50 text-blue-900',
-        tone === 'warning' && 'border-amber-200 bg-amber-50 text-amber-900',
+        tone === 'error' && 'border-danger/30 bg-danger-soft text-danger',
+        tone === 'info' && 'border-info/30 bg-info-soft text-info',
+        tone === 'warning' && 'border-warn/30 bg-warn-soft text-warn',
       )}
     >
       <div>{children}</div>
@@ -90,7 +90,7 @@ export function Alert({ tone = 'error', children, action }: { tone?: 'error' | '
 }
 
 export function Card({ children, className }: { children: ReactNode; className?: string }) {
-  return <section className={cx('rounded-xl border border-line bg-surface p-4 shadow-sm sm:p-6', className)}>{children}</section>;
+  return <section className={cx('rounded-2xl border border-line bg-surface p-4 shadow-sm sm:p-6', className)}>{children}</section>;
 }
 
 export { cx };
