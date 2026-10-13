@@ -4,7 +4,6 @@ import {
   Controller,
   Delete,
   Get,
-  Header,
   HttpCode,
   Param,
   Patch,
@@ -138,8 +137,6 @@ export class CvsController {
   }
 
   @Get(':id/pdf')
-  @Header('Content-Type', 'application/pdf')
-  @Header('Cache-Control', 'no-store')
   async pdf(
     @CurrentUser() user: User,
     @Param('id', UuidParam) id: string,
@@ -150,6 +147,9 @@ export class CvsController {
     const buffer = await renderCvPdf(cv.document, cv.title);
     const base = (cv.document.contact.fullName || cv.title).replace(/[^\p{L}\p{N} _-]+/gu, '').trim() || 'cv';
     const filename = `${base} CV.pdf`;
+    // Headers are set only on success, so error responses stay JSON.
+    reply.header('Content-Type', 'application/pdf');
+    reply.header('Cache-Control', 'no-store');
     reply.header(
       'Content-Disposition',
       `attachment; filename="${filename.replace(/[^\x20-\x7e]/g, '_')}"; filename*=UTF-8''${encodeURIComponent(filename)}`,
