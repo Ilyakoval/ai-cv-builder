@@ -169,6 +169,12 @@ Things review and testing caught that the first drafts got wrong, each fixed in 
 * **Rate limiting by IP behind the proxy** would have throttled all users together. Now keyed per session for signed-in requests.
 * **pdf.js under Jest** needs `--experimental-vm-modules` (ESM dynamic import). Kept the real parser in tests instead of mocking it away.
 
+Running the compose stack for the first time on a second machine (macOS/arm64) caught three more, each in its own commit:
+
+* **One image tag shared by api/worker/migrate** made their parallel builds race on export ("image already exists"). Each service now declares the same build and BuildKit dedupes it via cache.
+* **`npm ci -w` didn't create the workspace symlink** on this npm version, so the api image had no `node_modules/@cvb/shared`. The symlink is now created explicitly and the module graph is `require`-checked during the build.
+* **`COPY` preserved restrictive file modes from the checkout** (unpacked with a `077` umask), so the non-root runtime user couldn't read `package.json` files — and Node masked the `EACCES` as `Cannot find module '@cvb/shared'`. The build-time check missed it because it ran as root. Copied files now get `a+rX` and the check runs as the runtime user.
+
 ## Repository layout
 
 ```
