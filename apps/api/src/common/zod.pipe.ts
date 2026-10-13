@@ -1,4 +1,4 @@
-import { BadRequestException, PipeTransform } from '@nestjs/common';
+import { BadRequestException, NotFoundException, PipeTransform } from '@nestjs/common';
 import { ZodError, ZodTypeAny, z } from 'zod';
 
 export function zodDetails(error: ZodError) {
@@ -21,5 +21,11 @@ export class ZodPipe<S extends ZodTypeAny> implements PipeTransform<unknown, z.o
   }
 }
 
-/** Route params are ids; reject anything that is not a UUID before it reaches the DB. */
-export const UuidParam = new ZodPipe(z.string().uuid('Not found'));
+/** Route params are ids; anything that is not a UUID cannot exist, so it is a 404 (not a DB error). */
+export const UuidParam: PipeTransform<unknown, string> = {
+  transform(value: unknown) {
+    const result = z.string().uuid().safeParse(value);
+    if (!result.success) throw new NotFoundException('Not found');
+    return result.data;
+  },
+};
