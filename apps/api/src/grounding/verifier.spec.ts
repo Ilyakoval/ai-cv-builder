@@ -31,6 +31,10 @@ describe('Corpus helpers', () => {
     expect(findUnsupportedTerms('Mentored 3 junior developers', corpus)).toEqual(['3']);
   });
 
+  it('tolerates plural/singular variation of terms', () => {
+    expect(findUnsupportedTerms('Designed payment APIs on AWS', new Corpus('Designed the payment API on AWS'))).toEqual([]);
+  });
+
   it('flags invented technologies and metrics', () => {
     expect(findUnsupportedTerms('Cut costs by 45% using Kubernetes', corpus)).toEqual(['45', 'Kubernetes']);
   });

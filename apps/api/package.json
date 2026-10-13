@@ -9,8 +9,8 @@
     "migrate": "node dist/cli/migrate.js",
     "dev": "tsc -p tsconfig.build.json --watch",
     "typecheck": "tsc -p tsconfig.json --noEmit",
-    "test": "jest --selectProjects unit",
-    "test:e2e": "jest --selectProjects e2e --runInBand"
+    "test": "NODE_OPTIONS=--experimental-vm-modules jest --selectProjects unit",
+    "test:e2e": "NODE_OPTIONS=--experimental-vm-modules jest --selectProjects e2e --runInBand"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "0.133.0",
@@ -35,6 +35,7 @@
     "zod": "3.25.76"
   },
   "devDependencies": {
+    "@nestjs/testing": "11.2.7",
     "@types/jest": "29.5.14",
     "@types/node": "22.20.5",
     "@types/pdfmake": "0.2.13",

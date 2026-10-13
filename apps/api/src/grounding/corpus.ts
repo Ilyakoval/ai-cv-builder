@@ -85,11 +85,19 @@ export class Corpus {
     return this.tokens.has(token);
   }
 
+  /** Token match tolerant to simple English plurals ("API" ~ "APIs", "service" ~ "services"). */
+  hasTokenLoose(token: string): boolean {
+    if (this.tokens.has(token)) return true;
+    if (/\d/.test(token)) return false;
+    const variants = [`${token}s`, `${token}es`, token.replace(/es$/, ''), token.replace(/s$/, '')];
+    return variants.some((v) => v.length > 1 && this.tokens.has(v));
+  }
+
   /** Share of meaningful tokens of `fragment` that occur anywhere in the corpus. */
   tokenCoverage(fragment: string): number {
     const toks = tokenize(fragment).filter((t) => !STOPWORDS.has(t));
     if (toks.length === 0) return 1;
-    return toks.filter((t) => this.tokens.has(t)).length / toks.length;
+    return toks.filter((t) => this.hasTokenLoose(t)).length / toks.length;
   }
 
   hasNumber(raw: string): boolean {
@@ -134,7 +142,7 @@ export function findUnsupportedTerms(text: string, corpus: Corpus, allow: Set<st
   for (const t of terms) {
     const toks = tokenize(t);
     if (toks.every((tok) => allow.has(tok))) continue;
-    if (!corpus.containsPhrase(t)) missing.push(t);
+    if (!corpus.containsPhrase(t) && !toks.every((tok) => corpus.hasTokenLoose(tok))) missing.push(t);
   }
   return [...new Set(missing)];
 }
