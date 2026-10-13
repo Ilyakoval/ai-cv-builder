@@ -3,7 +3,7 @@
 import { PDF_MAX_BYTES, SOURCE_TEXT_MAX, SOURCE_TEXT_MIN, SourceTextSchema, TargetRoleSchema } from '@cvb/shared';
 import { useQueryClient } from '@tanstack/react-query';
 import { useRouter } from 'next/navigation';
-import { useState, type FormEvent } from 'react';
+import { useRef, useState, type FormEvent } from 'react';
 import { Alert, Button, Card, Field, Input, Textarea, cx } from '@/components/ui';
 import { api, ApiError } from '@/lib/api';
 
@@ -14,6 +14,8 @@ export default function NewCvPage() {
   const qc = useQueryClient();
   const [mode, setMode] = useState<Mode>('pdf');
   const [file, setFile] = useState<File | null>(null);
+  const [dragOver, setDragOver] = useState(false);
+  const fileInput = useRef<HTMLInputElement>(null);
   const [text, setText] = useState('');
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [error, setError] = useState<string | null>(null);
@@ -86,14 +88,55 @@ export default function NewCvPage() {
             </div>
 
             {mode === 'pdf' ? (
-              <Field label="CV file (PDF, up to 5 MB)" error={errors.file}>
+              /* Custom control instead of a native file input: the native button's
+                 label is browser-localized and can't be styled or translated. */
+              <div>
+                <span className="mb-1 block text-xs font-medium uppercase tracking-wide text-muted">CV file (PDF, up to 5 MB)</span>
                 <input
+                  ref={fileInput}
                   type="file"
                   accept="application/pdf,.pdf"
+                  className="sr-only"
+                  tabIndex={-1}
                   onChange={(e) => setFile(e.target.files?.[0] ?? null)}
-                  className="block w-full rounded-lg border border-dashed border-line bg-canvas p-4 text-sm file:mr-3 file:rounded-md file:border-0 file:bg-brand file:px-3 file:py-1.5 file:text-on-brand"
                 />
-              </Field>
+                <button
+                  type="button"
+                  onClick={() => fileInput.current?.click()}
+                  onDragOver={(e) => {
+                    e.preventDefault();
+                    setDragOver(true);
+                  }}
+                  onDragLeave={() => setDragOver(false)}
+                  onDrop={(e) => {
+                    e.preventDefault();
+                    setDragOver(false);
+                    const dropped = e.dataTransfer.files?.[0];
+                    if (dropped) setFile(dropped);
+                  }}
+                  className={cx(
+                    'flex w-full flex-col items-center gap-1 rounded-xl border border-dashed p-6 text-sm transition',
+                    'focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent',
+                    dragOver ? 'border-accent bg-info-soft' : 'border-line bg-canvas hover:border-accent/50',
+                  )}
+                >
+                  {file ? (
+                    <>
+                      <span className="font-medium">{file.name}</span>
+                      <span className="text-xs text-muted">
+                        {file.size < 1024 * 1024 ? `${Math.max(1, Math.round(file.size / 1024))} KB` : `${(file.size / 1024 / 1024).toFixed(1)} MB`} · click to
+                        choose another file
+                      </span>
+                    </>
+                  ) : (
+                    <>
+                      <span className="font-medium text-brand">Choose a PDF file</span>
+                      <span className="text-xs text-muted">or drag and drop it here</span>
+                    </>
+                  )}
+                </button>
+                {errors.file && <span className="mt-1 block text-xs text-danger">{errors.file}</span>}
+              </div>
             ) : (
               <Field
                 label="About you"
