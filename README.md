@@ -31,6 +31,14 @@ docker compose -f docker-compose.test.yml up -d     # throwaway Postgres :5433 +
 npm run test:e2e                                    # API end-to-end tests against real Postgres/Redis
 ```
 
+If `5433`/`6380` are taken locally, pick other host ports and point the tests at them:
+
+```bash
+TEST_POSTGRES_PORT=5440 TEST_REDIS_PORT=6390 docker compose -f docker-compose.test.yml up -d
+DATABASE_URL=postgres://cvbuilder:cvbuilder@127.0.0.1:5440/cvbuilder_test \
+REDIS_URL=redis://127.0.0.1:6390/1 npm run test:e2e
+```
+
 CI (`.github/workflows/ci.yml`) runs typecheck, unit, e2e, the production build and `docker compose build`.
 
 What is tested and why:
