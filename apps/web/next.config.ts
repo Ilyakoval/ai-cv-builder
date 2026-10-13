@@ -7,6 +7,8 @@ const config: NextConfig = {
   outputFileTracingRoot: path.join(__dirname, '../../'),
   poweredByHeader: false,
   reactStrictMode: true,
+  // Bundle the shared workspace package instead of resolving it at runtime.
+  transpilePackages: ['@cvb/shared'],
   async headers() {
     return [
       {

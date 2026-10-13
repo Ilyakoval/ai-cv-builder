@@ -29,7 +29,13 @@ COPY apps/api/package.json apps/api/
 RUN npm ci --omit=dev --no-audit --no-fund -w @cvb/api -w @cvb/shared && npm cache clean --force
 COPY --from=build /app/packages/shared/dist packages/shared/dist
 COPY --from=build /app/apps/api/dist apps/api/dist
+# Don't rely on npm creating the workspace symlink for a partial (-w) install:
+# its behaviour differs between npm versions/platforms. Link it explicitly.
+RUN mkdir -p node_modules/@cvb \
+ && ln -sfn ../../packages/shared node_modules/@cvb/shared
 WORKDIR /app/apps/api
+# Fail the image build, not the container start, if the runtime graph is broken.
+RUN node -e "require('@cvb/shared'); require('@node-rs/argon2'); require('./dist/app.module'); require('./dist/worker.module')"
 USER node
 EXPOSE 3001
 CMD ["node", "dist/main.js"]
