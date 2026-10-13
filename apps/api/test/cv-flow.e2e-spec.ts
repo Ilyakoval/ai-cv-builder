@@ -215,6 +215,37 @@ describe('CV generation flow', () => {
     expect(cv.jobs[0]!.error).not.toMatch(/401|api-key/);
   });
 
+  it('regeneration bumps the version atomically, so an editor holding the old version cannot overwrite it', async () => {
+    const { cookie } = await signup(h.app, 'regen@example.com');
+    const { id } = (await createTextCv(cookie)).json() as CvDetailDto;
+    h.llm.push(goodDraft(), goodDraft());
+    await h.drainJobs();
+    const before = await getCv(cookie, id);
+
+    // Tab A starts a regeneration; tab B saves an edit in the meantime.
+    await h.app.inject({ method: 'POST', url: `/api/cvs/${id}/regenerate`, headers: { cookie } });
+    const save = await h.app.inject({
+      method: 'PUT',
+      url: `/api/cvs/${id}/document`,
+      headers: { cookie },
+      payload: { version: before.version, document: { ...before.document!, summary: 'edited in tab B' } },
+    });
+    expect(save.statusCode).toBe(200);
+    h.llm.push(goodDraft(), goodDraft());
+    await h.drainJobs();
+
+    const after = await getCv(cookie, id);
+    expect(after.version).toBe(before.version + 2);
+    // Tab B, still holding version+1, is now told to reload instead of silently overwriting.
+    const stale = await h.app.inject({
+      method: 'PUT',
+      url: `/api/cvs/${id}/document`,
+      headers: { cookie },
+      payload: { version: before.version + 1, document: before.document! },
+    });
+    expect(stale.statusCode).toBe(409);
+  });
+
   it('refuses to start a second generation for the same CV while one is in flight', async () => {
     const { cookie } = await signup(h.app, 'dup@example.com');
     const { id } = (await createTextCv(cookie)).json() as CvDetailDto;

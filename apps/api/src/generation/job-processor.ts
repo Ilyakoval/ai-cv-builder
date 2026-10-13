@@ -1,4 +1,4 @@
-import { EntityManager, MikroORM } from '@mikro-orm/postgresql';
+import { EntityManager, MikroORM, raw } from '@mikro-orm/postgresql';
 import { Injectable, Logger } from '@nestjs/common';
 import type { JobStage, RemovedClaimDto } from '@cvb/shared';
 import { UnrecoverableError } from 'bullmq';
@@ -94,7 +94,8 @@ export class JobProcessor {
     await this.setStage(em, job, 'saving');
     await em.transactional(async (tx) => {
       // Questions from a previous generation no longer match the new item ids.
-      await tx.nativeDelete(CvQuestion, { cv: cv.id, status: { $in: ['open', 'dismissed'] } });
+      // Answered ones stay: their answers are part of the grounding corpus.
+      await tx.nativeDelete(CvQuestion, { cv: cv.id, status: { $in: ['open', 'applying', 'dismissed'] } });
       for (const q of result.questions) tx.create(CvQuestion, { cv: cv.id, ...q });
       await tx.nativeUpdate(
         Cv,
@@ -103,7 +104,8 @@ export class JobProcessor {
           document: result.document,
           removedClaims: result.removals.map(toRemovedClaim).slice(0, MAX_REMOVED_CLAIMS),
           status: 'ready',
-          version: cv.version + 1,
+          // Atomic increment: a concurrent user save must never end up with the same version number.
+          version: raw('version + 1'),
           updatedAt: new Date(),
         },
       );
