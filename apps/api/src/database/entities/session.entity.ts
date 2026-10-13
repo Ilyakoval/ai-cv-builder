@@ -1,4 +1,4 @@
-import { Entity, Index, ManyToOne, PrimaryKey, Property, Unique } from '@mikro-orm/core';
+import { Entity, OptionalProps, Index, ManyToOne, PrimaryKey, Property, Unique } from '@mikro-orm/core';
 import { randomUUID } from 'node:crypto';
 import { User } from './user.entity';
 
@@ -9,6 +9,8 @@ import { User } from './user.entity';
  */
 @Entity({ tableName: 'sessions' })
 export class Session {
+  [OptionalProps]?: 'createdAt';
+
   @PrimaryKey({ type: 'uuid' })
   id: string = randomUUID();
 

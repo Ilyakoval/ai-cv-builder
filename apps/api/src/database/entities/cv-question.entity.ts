@@ -1,10 +1,12 @@
-import { Entity, Enum, ManyToOne, PrimaryKey, Property } from '@mikro-orm/core';
+import { Entity, OptionalProps, Enum, ManyToOne, PrimaryKey, Property } from '@mikro-orm/core';
 import type { CvSection, QuestionStatus } from '@cvb/shared';
 import { randomUUID } from 'node:crypto';
 import { Cv } from './cv.entity';
 
 @Entity({ tableName: 'cv_questions' })
 export class CvQuestion {
+  [OptionalProps]?: 'itemId' | 'status' | 'answer' | 'origin' | 'createdAt' | 'updatedAt';
+
   @PrimaryKey({ type: 'uuid' })
   id: string = randomUUID();
 

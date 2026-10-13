@@ -1,3 +1,4 @@
+import '@fastify/cookie';
 import { Body, Controller, Get, HttpCode, Inject, Post, Req, Res, UseGuards } from '@nestjs/common';
 import { RouteConfig } from '@nestjs/platform-fastify';
 import { Credentials, CredentialsSchema, UserDto } from '@cvb/shared';

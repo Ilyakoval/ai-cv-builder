@@ -1,3 +1,4 @@
+import '@fastify/cookie';
 import { CanActivate, ExecutionContext, Injectable, UnauthorizedException, createParamDecorator } from '@nestjs/common';
 import type { FastifyRequest } from 'fastify';
 import { User } from '../database/entities';

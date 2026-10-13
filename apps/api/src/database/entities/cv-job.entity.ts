@@ -1,4 +1,4 @@
-import { Entity, Enum, Index, ManyToOne, PrimaryKey, Property } from '@mikro-orm/core';
+import { Entity, OptionalProps, Enum, Index, ManyToOne, PrimaryKey, Property } from '@mikro-orm/core';
 import type { JobStage, JobStatus, JobType } from '@cvb/shared';
 import { randomUUID } from 'node:crypto';
 import { Cv } from './cv.entity';
@@ -12,6 +12,8 @@ import { CvQuestion } from './cv-question.entity';
 @Entity({ tableName: 'cv_jobs' })
 @Index({ properties: ['status', 'updatedAt'] })
 export class CvJob {
+  [OptionalProps]?: 'status' | 'stage' | 'attempts' | 'error' | 'question' | 'createdAt' | 'updatedAt';
+
   @PrimaryKey({ type: 'uuid' })
   id: string = randomUUID();
 

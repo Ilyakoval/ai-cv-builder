@@ -1,4 +1,4 @@
-import { Entity, Enum, Index, ManyToOne, PrimaryKey, Property } from '@mikro-orm/core';
+import { Entity, OptionalProps, Enum, Index, ManyToOne, PrimaryKey, Property } from '@mikro-orm/core';
 import type { CvDocument, CvStatus, RemovedClaimDto } from '@cvb/shared';
 import { randomUUID } from 'node:crypto';
 import { User } from './user.entity';
@@ -6,6 +6,8 @@ import { User } from './user.entity';
 @Entity({ tableName: 'cvs' })
 @Index({ properties: ['owner', 'updatedAt'] })
 export class Cv {
+  [OptionalProps]?: 'status' | 'sourceFileName' | 'document' | 'removedClaims' | 'version' | 'createdAt' | 'updatedAt';
+
   @PrimaryKey({ type: 'uuid' })
   id: string = randomUUID();
 
