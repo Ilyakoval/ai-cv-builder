@@ -1,6 +1,6 @@
 'use client';
 
-import type { CvDocument, CvEducationItem, CvExperienceItem, CvSection } from '@cvb/shared';
+import { normalizePhone, type CvDocument, type CvEducationItem, type CvExperienceItem, type CvSection } from '@cvb/shared';
 import type { ReactNode } from 'react';
 import { Button, Field, Input, Textarea, cx } from './ui';
 
@@ -90,8 +90,18 @@ export function CvEditor({
           <Field label="Email">
             <Input type="email" value={doc.contact.email} maxLength={200} onChange={(e) => setContact({ email: e.target.value })} />
           </Field>
-          <Field label="Phone">
-            <Input type="tel" value={doc.contact.phone} maxLength={50} onChange={(e) => setContact({ phone: e.target.value })} />
+          <Field
+            label="Phone"
+            hint="For example +380 67 123 45 67"
+            error={doc.contact.phone && normalizePhone(doc.contact.phone) === null ? "Doesn't look like a phone number" : undefined}
+          >
+            <Input
+              type="tel"
+              inputMode="tel"
+              value={doc.contact.phone}
+              maxLength={50}
+              onChange={(e) => setContact({ phone: e.target.value.replace(/[^+\d\s().\-\/]/g, '') })}
+            />
           </Field>
           <Field label="Location">
             <Input value={doc.contact.location} maxLength={120} onChange={(e) => setContact({ location: e.target.value })} />

@@ -1,4 +1,4 @@
-import type { CvSection } from '@cvb/shared';
+import { normalizePhone, type CvSection } from '@cvb/shared';
 import type {
   Claim,
   ContactDraft,
@@ -86,8 +86,17 @@ export function verifyContact(contact: ContactDraft, ctx: VerifyContext, removal
   if (contact.fullName && !allTokensSupported(contact.fullName, corpus)) out.fullName = drop('Name', contact.fullName);
   if (contact.email && !corpus.containsRaw(contact.email)) out.email = drop('Email', contact.email);
   if (contact.phone) {
-    const d = digitsOf(contact.phone);
-    if (d.length < 6 || !corpus.containsDigitSequence(d)) out.phone = drop('Phone', contact.phone);
+    if (normalizePhone(contact.phone) === null) {
+      removals.push({
+        section: 'contact',
+        itemIndex: null,
+        text: contact.phone,
+        reason: "doesn't look like a phone number",
+      });
+      out.phone = '';
+    } else if (!corpus.containsDigitSequence(digitsOf(contact.phone))) {
+      out.phone = drop('Phone', contact.phone);
+    }
   }
   if (contact.location && !allTokensSupported(contact.location, corpus)) out.location = drop('Location', contact.location);
 

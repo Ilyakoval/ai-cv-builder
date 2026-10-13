@@ -1,3 +1,4 @@
+import { normalizePhone } from '@cvb/shared';
 import { Logger } from '@nestjs/common';
 import { LlmClient, LlmToolRequest } from './llm.types';
 
@@ -30,7 +31,8 @@ export function fakeDraft(message: string) {
   const source = tag(message, 'source');
   const lines = source.split('\n').map((l) => l.replace(/^[\s•*-]+/, '').trim()).filter(Boolean);
   const email = source.match(/[\w.+-]+@[\w-]+\.[\w.]+/)?.[0] ?? '';
-  const phone = source.match(/\+?\d[\d\s()-]{7,}\d/)?.[0] ?? '';
+  // normalizePhone rejects year ranges ("2013-2017") that look phone-like.
+  const phone = (source.match(/\+?\d[\d\s().-]{5,18}\d/g) ?? []).find((c) => normalizePhone(c)) ?? '';
   const first = lines[0] ?? '';
   const fullName = /^[\p{L}' -]{3,60}$/u.test(first) && first.split(' ').length <= 4 ? first : '';
   const sentences = lines

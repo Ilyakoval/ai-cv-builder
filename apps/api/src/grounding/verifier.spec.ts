@@ -133,3 +133,36 @@ describe('verifyDraft', () => {
     expect(result.draft.skills).toEqual([{ name: 'Backend', items: ['TypeScript', 'Node.js', 'PostgreSQL'] }]);
   });
 });
+
+describe('verifyContact phone shape', () => {
+  it('drops a year range mistaken for a phone, even when it appears in the source', () => {
+    const source = 'Jane Doe, jane@example.com\nDeveloper at Acme, 2013-2017, built APIs in Node.js for years.';
+    const draft = CvDraftSchema.parse({
+      contact: { fullName: 'Jane Doe', email: 'jane@example.com', phone: '2013-2017', location: '', links: [] },
+      summary: { text: '', evidence: [] },
+      experience: [],
+      education: [],
+      skills: [],
+      questions: [],
+    });
+    const result = verifyDraft(draft, createContext(source, 'Backend Engineer'));
+    expect(result.draft.contact.phone).toBe('');
+    expect(result.removals).toContainEqual(
+      expect.objectContaining({ section: 'contact', text: '2013-2017', reason: expect.stringContaining('phone number') }),
+    );
+  });
+
+  it('keeps a real phone that appears in the source', () => {
+    const source = 'Jane Doe, +380 67 123 45 67, Kyiv. Developer at Acme since 2019, shipped lots of backend code.';
+    const draft = CvDraftSchema.parse({
+      contact: { fullName: 'Jane Doe', email: '', phone: '+380671234567', location: '', links: [] },
+      summary: { text: '', evidence: [] },
+      experience: [],
+      education: [],
+      skills: [],
+      questions: [],
+    });
+    const result = verifyDraft(draft, createContext(source, 'Backend Engineer'));
+    expect(result.draft.contact.phone).toBe('+380671234567');
+  });
+});

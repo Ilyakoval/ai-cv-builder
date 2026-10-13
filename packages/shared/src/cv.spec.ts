@@ -1,4 +1,4 @@
-import { CvDocumentSchema, emptyCvDocument, normalizeUrl, sanitizeText } from './cv';
+import { CvDocumentSchema, emptyCvDocument, normalizePhone, normalizeUrl, sanitizeText } from './cv';
 
 describe('normalizeUrl', () => {
   it.each([
@@ -43,5 +43,35 @@ describe('CvDocumentSchema', () => {
     const doc = emptyCvDocument();
     doc.contact.fullName = 'Jane\n  Doe';
     expect(CvDocumentSchema.parse(doc).contact.fullName).toBe('Jane Doe');
+  });
+
+  it('rejects a phone that does not look like a phone', () => {
+    const doc = emptyCvDocument();
+    doc.contact.phone = '2013-2017';
+    const result = CvDocumentSchema.safeParse(doc);
+    expect(result.success).toBe(false);
+    const paths = result.success ? [] : result.error.issues.map((i) => i.path.join('.'));
+    expect(paths).toContain('contact.phone');
+  });
+});
+
+describe('normalizePhone', () => {
+  it.each([
+    ['+380 67 123 45 67', '+380 67 123 45 67'],
+    ['(044) 123-45-67', '(044) 123-45-67'],
+    ['+1.212.555.0100', '+1.212.555.0100'],
+    ['', ''],
+  ])('accepts %s', (input, expected) => {
+    expect(normalizePhone(input)).toBe(expected);
+  });
+
+  it.each([
+    '2013-2017', // year range that looks digit-heavy
+    '2013 – 2017',
+    '123456', // fewer than 7 digits
+    '+1234567890123456', // more than 15 digits
+    'call me 0671234567', // letters mixed in
+  ])('rejects %s', (input) => {
+    expect(normalizePhone(input)).toBeNull();
   });
 });

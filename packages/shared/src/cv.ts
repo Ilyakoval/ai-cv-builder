@@ -61,6 +61,34 @@ export const urlField = z
     return normalized;
   });
 
+/**
+ * A phone must look like a phone: digits plus the usual separators, 7–15
+ * digits total (ITU E.164 bounds), and not a bare year range like
+ * "2013-2017", which both people and models paste into the wrong field.
+ */
+const PHONE_CHARS = /^[+\d\s().\-\/]+$/;
+const YEAR_RANGE = /^(19|20)\d{2}\s*[-–—]\s*(19|20)\d{2}$/;
+
+export function normalizePhone(raw: string): string | null {
+  const value = sanitizeText(raw);
+  if (!value) return '';
+  const digits = value.replace(/\D/g, '');
+  if (!PHONE_CHARS.test(value) || digits.length < 7 || digits.length > 15 || YEAR_RANGE.test(value)) return null;
+  return value;
+}
+
+export const phoneField = z
+  .string()
+  .max(50)
+  .transform((v, ctx) => {
+    const normalized = normalizePhone(v);
+    if (normalized === null) {
+      ctx.addIssue({ code: z.ZodIssueCode.custom, message: "Doesn't look like a phone number" });
+      return z.NEVER;
+    }
+    return normalized;
+  });
+
 const id = z
   .string()
   .regex(/^[A-Za-z0-9_-]{1,40}$/, 'Invalid id');
@@ -73,7 +101,7 @@ export const LinkSchema = z.object({
 export const ContactSchema = z.object({
   fullName: text(120),
   email: text(200),
-  phone: text(50),
+  phone: phoneField,
   location: text(120),
   links: z.array(LinkSchema).max(8),
 });
