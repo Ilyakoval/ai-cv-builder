@@ -1,0 +1,19 @@
+{
+  "name": "ai-cv-builder",
+  "private": true,
+  "version": "0.1.0",
+  "workspaces": [
+    "packages/*",
+    "apps/*"
+  ],
+  "scripts": {
+    "build": "npm run build -w @cvb/shared && npm run build -w @cvb/api && npm run build -w @cvb/web",
+    "test": "npm run build -w @cvb/shared && npm test -w @cvb/shared && npm test -w @cvb/api",
+    "test:e2e": "npm run build -w @cvb/shared && npm run test:e2e -w @cvb/api",
+    "lint": "npm run lint --workspaces --if-present",
+    "typecheck": "npm run typecheck --workspaces --if-present"
+  },
+  "engines": {
+    "node": ">=22"
+  }
+}
