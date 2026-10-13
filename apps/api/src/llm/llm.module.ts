@@ -10,10 +10,11 @@ import { LLM_CLIENT } from './llm.types';
     {
       provide: LLM_CLIENT,
       inject: [APP_CONFIG],
-      useFactory: (config: AppConfig) =>
-        config.LLM_PROVIDER === 'fake'
-          ? new FakeLlmClient(config.NODE_ENV === 'test' ? 0 : 1500)
-          : new AnthropicLlmClient(config.ANTHROPIC_API_KEY!, config.ANTHROPIC_MODEL, config.LLM_TIMEOUT_MS),
+      useFactory: (config: AppConfig) => {
+        if (config.LLM_PROVIDER === 'fake') return new FakeLlmClient(config.NODE_ENV === 'test' ? 0 : 1500);
+        if (!config.ANTHROPIC_API_KEY) throw new Error('ANTHROPIC_API_KEY is required when LLM_PROVIDER=anthropic');
+        return new AnthropicLlmClient(config.ANTHROPIC_API_KEY, config.ANTHROPIC_MODEL, config.LLM_TIMEOUT_MS);
+      },
     },
   ],
   exports: [LLM_CLIENT],

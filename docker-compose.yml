@@ -1,0 +1,91 @@
+name: ai-cv-builder
+
+x-api-image: &api-image
+  build: { context: ., target: api }
+  image: ai-cv-builder-api:local
+
+x-api-env: &api-env
+  NODE_ENV: production
+  DATABASE_URL: postgres://cvbuilder:cvbuilder@postgres:5432/cvbuilder
+  REDIS_URL: redis://redis:6379
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: cvbuilder
+      POSTGRES_PASSWORD: cvbuilder
+      POSTGRES_DB: cvbuilder
+    volumes: [pgdata:/var/lib/postgresql/data]
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U cvbuilder -d cvbuilder"]
+      interval: 3s
+      timeout: 3s
+      retries: 20
+
+  redis:
+    image: redis:7-alpine
+    # AOF so queued jobs survive a restart (Postgres is still the source of truth).
+    command: ["redis-server", "--appendonly", "yes"]
+    volumes: [redisdata:/data]
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 3s
+      timeout: 3s
+      retries: 20
+
+  migrate:
+    <<: *api-image
+    command: ["node", "dist/cli/migrate.js"]
+    environment: *api-env
+    depends_on:
+      postgres: { condition: service_healthy }
+    restart: "no"
+
+  api:
+    <<: *api-image
+    environment:
+      <<: *api-env
+      PORT: 3001
+      # Set to true when served over HTTPS.
+      COOKIE_SECURE: ${COOKIE_SECURE:-false}
+    depends_on:
+      migrate: { condition: service_completed_successfully }
+      redis: { condition: service_healthy }
+    healthcheck:
+      test: ["CMD", "node", "-e", "fetch('http://127.0.0.1:3001/api/health').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+    restart: unless-stopped
+
+  worker:
+    <<: *api-image
+    command: ["node", "dist/worker.js"]
+    environment:
+      <<: *api-env
+      # The only secret. Only the worker receives it — the HTTP API never does.
+      ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY:-}
+      ANTHROPIC_MODEL: ${ANTHROPIC_MODEL:-claude-sonnet-5-5}
+      # "fake" runs the whole flow offline without an API key.
+      LLM_PROVIDER: ${LLM_PROVIDER:-anthropic}
+      WORKER_CONCURRENCY: ${WORKER_CONCURRENCY:-2}
+    depends_on:
+      migrate: { condition: service_completed_successfully }
+      redis: { condition: service_healthy }
+    stop_grace_period: 60s
+    restart: unless-stopped
+
+  web:
+    build: { context: ., target: web }
+    image: ai-cv-builder-web:local
+    environment:
+      API_URL: http://api:3001
+    ports: ["3000:3000"]
+    depends_on:
+      api: { condition: service_healthy }
+    restart: unless-stopped
+
+volumes:
+  pgdata:
+  redisdata:

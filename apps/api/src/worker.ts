@@ -6,7 +6,7 @@ import { WorkerAppModule } from './worker.module';
 
 /** Separate process: slow LLM work never competes with HTTP requests, and scales independently. */
 async function main() {
-  const config = loadConfig();
+  const config = loadConfig(process.env, { requireLlm: true });
   const app = await NestFactory.createApplicationContext(WorkerAppModule, { logger: ['log', 'warn', 'error'] });
   app.enableShutdownHooks();
   new Logger('Worker').log(`Worker running (LLM provider: ${config.LLM_PROVIDER}, model: ${config.ANTHROPIC_MODEL})`);

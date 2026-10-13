@@ -8,7 +8,7 @@ import { createOrmConfig } from '../database/mikro-orm.config';
  * race to migrate and a failed migration stops the rollout.
  */
 async function main() {
-  const { DATABASE_URL } = loadConfig({ ...process.env, LLM_PROVIDER: 'fake' });
+  const { DATABASE_URL } = loadConfig();
   const orm = await MikroORM.init(createOrmConfig(DATABASE_URL));
   try {
     const executed = await orm.getMigrator().up();
