@@ -2,6 +2,8 @@
 
 Upload a CV (PDF) or describe your background in plain text, name a target role, and get a focused CV you can review, edit and download as an A4 PDF. The AI may rephrase and restructure, but it is **not allowed to invent facts**: anything it can't trace back to your own words is removed, and gaps become questions for you.
 
+The editor ships with a light/dark/system theme and validates as you type — for example, a phone must actually look like a phone (7–15 digits, not a year range like "2013-2017"), a rule enforced by the shared schema in the editor, at the API boundary, and on LLM output by the verifier.
+
 **Stack:** NestJS (Fastify adapter) · MikroORM · PostgreSQL · Redis + BullMQ · Next.js 15 (App Router) · TanStack Query · Tailwind · Anthropic API (Claude) · pdfmake · Jest.
 
 ---
@@ -168,6 +170,7 @@ Things review and testing caught that the first drafts got wrong, each fixed in 
 * **Version race on regeneration.** The worker wrote `loadedVersion + 1`, so a concurrent user save could share a version number and later be silently overwritten. Fixed with an atomic increment and a regression test.
 * **Rate limiting by IP behind the proxy** would have throttled all users together. Now keyed per session for signed-in requests.
 * **pdf.js under Jest** needs `--experimental-vm-modules` (ESM dynamic import). Kept the real parser in tests instead of mocking it away.
+* **A year range passed for a phone number.** Manual testing on the offline stub showed "2013-2017" landing in the Phone field — digit-heavy date ranges satisfy naive phone matching. Phones are now validated by shape (7–15 digits, phone separators, explicit year-range rejection) in the editor, at the API boundary, and on LLM output.
 
 Running the compose stack for the first time on a second machine (macOS/arm64) caught three more, each in its own commit:
 
