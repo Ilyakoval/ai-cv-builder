@@ -13,13 +13,13 @@ cp .env.example .env          # put your key in ANTHROPIC_API_KEY
 docker compose up --build
 ```
 
-Open **http://localhost:3000**, sign up, create a CV.
+Open **http://localhost:8080**, sign up, create a CV. (Port is configurable: `WEB_PORT=3000 docker compose up`.)
 
 `ANTHROPIC_API_KEY` is the only secret, and only the `worker` container receives it. The model defaults to `claude-sonnet-5-5`; override it with `ANTHROPIC_MODEL`.
 
 To click through the whole flow without a key, run `LLM_PROVIDER=fake docker compose up --build`. A deterministic stub replaces Claude: it copies sentences from your input and asks generic questions. That's enough to exercise the queue, progress, questions, editing and PDF export, but the output isn't a real CV.
 
-Services: `postgres`, `redis`, `migrate` (one-shot), `api` (:3001, internal), `worker`, `web` (:3000).
+Services: `postgres`, `redis`, `migrate` (one-shot), `api` (:3001, internal), `worker`, `web` (host :8080 → container :3000).
 
 ## Run the tests
 
