@@ -1,0 +1,27 @@
+@import "tailwindcss";
+
+@theme {
+  --color-ink: #17202b;
+  --color-muted: #5b6573;
+  --color-line: #e3e6eb;
+  --color-surface: #ffffff;
+  --color-canvas: #f5f6f8;
+  --color-brand: #1f3a5f;
+  --color-brand-strong: #152a45;
+  --color-accent: #2f6fdf;
+  --font-sans: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  background: var(--color-canvas);
+  color: var(--color-ink);
+}
+
+/* iOS zooms into inputs smaller than 16px; keep form controls at 16px on phones. */
+@media (max-width: 640px) {
+  input, textarea, select { font-size: 16px; }
+}
